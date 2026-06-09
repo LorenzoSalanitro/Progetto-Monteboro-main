@@ -51,7 +51,9 @@ const translations = {
     "origins.detail.1": "In Toscana i giganti non sono di pietra, ma di storia, reputazione e visione.",
     "origins.detail.2": "E’ un territorio che osserva, misura, confronta.",
     "origins.detail.3": "Un contesto esigente, dove ogni dettaglio conta.",
-    "origins.detail.4": "Ed è proprio qui che abbiamo scelto di metterci alla prova."
+    "origins.detail.4": "Ed è proprio qui che abbiamo scelto di metterci alla prova.",
+    "cookie.text": "Questo sito utilizza i cookie per migliorare l'esperienza di navigazione. Cliccando su 'Accetto', acconsenti al loro utilizzo.",
+    "cookie.accept": "Accetto"
   },
   en: {
     "nav.menu": "Menu",
@@ -105,7 +107,9 @@ const translations = {
     "origins.detail.1": "In Tuscany the giants are not made of stone, but of history, reputation and vision.",
     "origins.detail.2": "It is a territory that observes, measures and compares.",
     "origins.detail.3": "A demanding context where every detail matters.",
-    "origins.detail.4": "And it is precisely here that we chose to put ourselves to the test."
+    "origins.detail.4": "And it is precisely here that we chose to put ourselves to the test.",
+    "cookie.text": "This website uses cookies to improve your browsing experience. By clicking 'Accept', you agree to their use.",
+    "cookie.accept": "Accept"
   },
   de: {
     "nav.menu": "Menü",
@@ -159,7 +163,9 @@ const translations = {
     "origins.detail.1": "In der Toskana sind die Giganten nicht aus Stein, sondern aus Geschichte, Reputation und Vision.",
     "origins.detail.2": "Es ist ein Gebiet, das beobachtet, misst und vergleicht.",
     "origins.detail.3": "Ein anspruchsvoller Kontext, in dem jedes Detail zählt.",
-    "origins.detail.4": "Und genau hier haben wir uns entschieden, uns zu messen."
+    "origins.detail.4": "Und genau hier haben wir uns entschieden, uns zu messen.",
+    "cookie.text": "Diese Website verwendet Cookies, um Ihr Surferlebnis zu verbessern. Durch Klicken auf 'Akzeptieren' stimmen Sie deren Verwendung zu.",
+    "cookie.accept": "Akzeptieren"
   }
 };
 
@@ -208,6 +214,39 @@ function closeLanguageMenu() {
   if (langToggle) langToggle.setAttribute("aria-expanded", "false");
 }
 
+function initCookieBanner() {
+  const CONSENT_KEY = "monteboro-cookie-consent";
+  try {
+    if (localStorage.getItem(CONSENT_KEY) === "accepted") return;
+  } catch (e) { return; }
+
+  const style = document.createElement("style");
+  style.textContent = `
+    #cookie-banner { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; border-top: 1px solid #e5e5e5; padding: 20px 0; z-index: 10000; box-shadow: 0 -2px 15px rgba(0,0,0,0.1); font-family: sans-serif; }
+    .cookie-inner { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; padding: 0 20px; gap: 20px; }
+    .cookie-inner p { margin: 0; font-size: 14px; color: #333; line-height: 1.5; }
+    .cookie-inner button { background: #8b0000; color: #fff; border: none; padding: 10px 25px; cursor: pointer; font-weight: bold; transition: opacity 0.2s; white-space: nowrap; }
+    .cookie-inner button:hover { opacity: 0.9; }
+    @media (max-width: 600px) { .cookie-inner { flex-direction: column; text-align: center; } }
+  `;
+  document.head.appendChild(style);
+
+  const banner = document.createElement("div");
+  banner.id = "cookie-banner";
+  banner.innerHTML = `
+    <div class="cookie-inner">
+      <p data-i18n="cookie.text"></p>
+      <button id="accept-cookies" data-i18n="cookie.accept"></button>
+    </div>
+  `;
+  document.body.appendChild(banner);
+
+  document.getElementById("accept-cookies").addEventListener("click", () => {
+    try { localStorage.setItem(CONSENT_KEY, "accepted"); } catch (e) {}
+    banner.remove();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const navToggle = document.querySelector(".nav-toggle");
   const mainNav = document.querySelector(".main-nav");
@@ -215,6 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const langMenu = document.querySelector(".lang-menu");
   const langButtons = document.querySelectorAll(".lang-dropdown button");
 
+  initCookieBanner();
   const defaultLang = getStoredLanguage();
   applyLanguage(defaultLang);
 
